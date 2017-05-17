@@ -6,6 +6,7 @@
 #include "random.h"
 #include "gobjects.h"
 #include "set.h"
+#include "vector.h"
 
 using namespace std;
 
@@ -38,6 +39,13 @@ void drawSierpinskiTriangle(GWindow & gw, double x, double y, double length, int
 
 void generateBinaryCode(Set<string> & set, int nBits);
 
+int countWays(int numStairs);
+
+void recursiveCriticalVotes(Vector<int> & blocks, int total, int currentSum, int target,
+                            int & result, int index);
+
+int countCriticalVotes(Vector<int> & blocks, int blockIndex);
+
 
 int main() {
 
@@ -57,10 +65,20 @@ int main() {
 
   //drawSierpinskiTriangle(gw, cx, cy, 200, 5);
 
-  Set<string> test;
-  generateBinaryCode(test, 3);
-  cout << test.toString() << endl;
+  // Set<string> test;
+  // generateBinaryCode(test, 3);
+  // cout << test.toString() << endl;
 
+  //cout << countWays(4) << endl;
+
+  Vector<int> test;
+  test.add(4);
+  test.add(2);
+  test.add(7);
+  test.add(4);
+
+  cout << countCriticalVotes(test, 2) << endl;
+  
   
   return 0;
 }
@@ -210,4 +228,61 @@ void generateBinaryCode(Set<string> & set, int nBits) {
 
     set = temp;
   }
+}
+
+
+/* Function: countWays
+ * Usage:    n = countWays(x);
+ * ---------------------------
+ * Professor Zelenski's Assignment 3, problem 1
+ */
+int countWays(int numStairs) {
+  if (numStairs < 0) {
+    return 0;
+  } else if (numStairs == 0) {
+    return 1;
+  } else {
+    return countWays(numStairs - 1) + countWays(numStairs - 2);
+  }
+}
+
+
+/* Function: recursiveCriticalVotes
+ * Usage:
+ * ---------------------------------
+ * Professor Zelenski's Assignment 3, problem 3
+ * heavy lifing here
+ */
+void recursiveCriticalVotes(Vector<int> & blocks, int total, int currentSum, int target,
+                            int & result, int index) {
+  if (index == blocks.size()) {
+    if (((currentSum + target) > total / 2)
+        && (total - currentSum) > total / 2){
+      result += 1;
+    }
+  } else {
+    recursiveCriticalVotes(blocks, total, currentSum + blocks[index], target, result, index + 1);
+    recursiveCriticalVotes(blocks, total, currentSum, target, result, index + 1);    
+  }
+}
+
+
+/* Function: countCriticalVotes
+ * Usage:
+ * -------------------------------
+ * Problem 3 wrapper function
+ * sets things up to call the recursiveCriticalVotes function
+ */
+int countCriticalVotes(Vector<int> & blocks, int blockIndex) {
+  int total = 0;
+  for (int i = 0; i < blocks.size(); i++) {
+    total += blocks[i];
+  }
+  int target = blocks[blockIndex];
+  blocks.remove(blockIndex);
+  int result = 0;
+
+  recursiveCriticalVotes(blocks, total, 0, target, result, 0);
+
+  return result;
 }
