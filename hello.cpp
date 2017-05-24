@@ -6,6 +6,7 @@
 #include "random.h"
 #include "gobjects.h"
 #include "set.h"
+#include "stack.h"
 #include "vector.h"
 #include <algorithm>
 
@@ -58,6 +59,9 @@ static void countWaysToMakeChange(const Vector<int> & denominations, int amount,
 static int solutionCountWaysToMakeChange(const Vector<int>& denoms,
                                          int amount, int start) ;
 
+void stutter(Stack<int> & s);
+
+string starString(int n);
 
 
 int main() {
@@ -90,11 +94,20 @@ int main() {
   // test.add(7);
   // test.add(4);
 
-  Vector<int> denominations;
-  denominations += 25, 10, 5, 1;
+  // Vector<int> denominations;
+  // denominations += 25, 10, 5, 1;
   //denominations += 10, 5;  
 
-  cout << solutionCountWaysToMakeChange(denominations, 100, 0) << endl;
+  // Stack<int> test;
+  // test.push(1);
+  // test.push(2);
+  // test.push(3);
+  // cout << test.toString() << endl;
+  // stutter(test);
+  // cout << test.toString() << endl;
+
+
+  cout << starString(4) << endl;
   
   return 0;
 }
@@ -365,6 +378,7 @@ static void countWaysToMakeChange(const Vector<int> & denominations, int amount,
   }
 }
 
+/* think about this solution somemore */
 static int solutionCountWaysToMakeChange(const Vector<int>& denoms,
                                  int amount, int start) {
   if (amount == 0) return 1; // there’s 1 way to not give any change
@@ -373,4 +387,36 @@ static int solutionCountWaysToMakeChange(const Vector<int>& denoms,
   return
     solutionCountWaysToMakeChange(denoms, amount - denoms.get(start), start) +
     solutionCountWaysToMakeChange(denoms, amount, start + 1);
+}
+
+
+/* Function: stutter
+ * Usage:    stutter(s);
+ * ----------------------
+ * Problem from section assignment
+ */
+void stutter(Stack<int> & s) {
+  if (s.isEmpty()) {
+    return;
+  } else {
+    int temp = s.pop();
+    stutter(s);
+    s.push(temp);
+    s.push(temp);
+  }
+}
+
+
+/* Function: starString(int n)
+ * Usage:    cout << starString(5)
+ * --------------------------------
+ * Section problem
+ */
+string starString(int n) {
+  if (n == 0) {
+    return "*"; 
+  } else {
+    string stars = starString(n - 1);
+    return stars + stars;
+  }
 }
