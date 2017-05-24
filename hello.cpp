@@ -7,6 +7,7 @@
 #include "gobjects.h"
 #include "set.h"
 #include "vector.h"
+#include <algorithm>
 
 using namespace std;
 
@@ -46,6 +47,18 @@ void recursiveCriticalVotes(Vector<int> & blocks, int total, int currentSum, int
 
 int countCriticalVotes(Vector<int> & blocks, int blockIndex);
 
+bool twiddlesHelper(char a, char b);
+
+bool isTwiddle(string str, string target, int index);
+
+//static int countWaysToMakeChange(const Vector<int> & denominations, int amount);
+static void countWaysToMakeChange(const Vector<int> & denominations, int amount,
+                                  Set<Vector<int> > & result, Vector<int> & temp);
+
+static int solutionCountWaysToMakeChange(const Vector<int>& denoms,
+                                         int amount, int start) ;
+
+
 
 int main() {
 
@@ -71,14 +84,17 @@ int main() {
 
   //cout << countWays(4) << endl;
 
-  Vector<int> test;
-  test.add(4);
-  test.add(2);
-  test.add(7);
-  test.add(4);
+  // Vector<int> test;
+  // test.add(4);
+  // test.add(2);
+  // test.add(7);
+  // test.add(4);
 
-  cout << countCriticalVotes(test, 2) << endl;
-  
+  Vector<int> denominations;
+  denominations += 25, 10, 5, 1;
+  //denominations += 10, 5;  
+
+  cout << solutionCountWaysToMakeChange(denominations, 100, 0) << endl;
   
   return 0;
 }
@@ -285,4 +301,76 @@ int countCriticalVotes(Vector<int> & blocks, int blockIndex) {
   recursiveCriticalVotes(blocks, total, 0, target, result, 0);
 
   return result;
+}
+
+
+/* Function: twiddlesHelper
+ * Usage:    isTrue = twiddlesHelper('a', 'b')
+ * ---------------------------------------------
+ * Helper funtion to the twiddles problem from section 
+ * assignment. Returns true if the distance between two 
+ * chars are 0, +1, -1, +2, -2
+ * Precondition:
+ * Postcondition:
+ */
+bool twiddlesHelper(char a, char b) {
+  if ((a == b) || (a == b - 1) || (a == b - 2) || (a == b + 1) || (a == b + 2)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+
+/* Function: isTwiddle
+ * Usage:    bool = isTwiddle("happy", "cool", 0)
+ * ------------------------------------------------
+ * The twiddle problem from section assignment
+ * Precondition:
+ * Poistcondition:
+ */
+bool isTwiddle(string str, string target, int index) {
+  if (index == str.length() - 1) {
+    return twiddlesHelper(str[index], target[index]);
+  } else {
+    return twiddlesHelper(str[index], target[index]) && isTwiddle(str, target, index + 1);
+  }
+}
+
+
+/* Function: countWaysToMakeChange
+ * Usage:    n = countWaysToMakeChange(denominations, 100)
+ * --------------------------------------------------------
+ * Problem from section assignment
+ * Precodition:
+ * Postcondition: 
+ * This version will be very slow for large input
+ * This is a hack, the fundamental problem is that I did not 
+ * come up with the correct recursive insight
+ */
+static void countWaysToMakeChange(const Vector<int> & denominations, int amount,
+                                  Set<Vector<int> > & result, Vector<int> & temp) {
+  if (amount == 0) {
+    Vector<int> copy = temp;
+    sort(copy.begin(), copy.end());    
+    result.add(copy);
+  } else {
+    for (int i = 0; i < denominations.size(); i++) {
+      if (denominations[i] <= amount) { // "=" was the first bug
+        temp.add(denominations[i]);
+        countWaysToMakeChange(denominations, amount - denominations[i], result, temp);
+        temp.remove(temp.size() - 1);
+      }
+    }
+  }
+}
+
+static int solutionCountWaysToMakeChange(const Vector<int>& denoms,
+                                 int amount, int start) {
+  if (amount == 0) return 1; // there’s 1 way to not give any change
+  if (amount < 0) return 0; // it’s impossible to make negative change
+  if (start >= denoms.size()) return 0; // no permitted denominations
+  return
+    solutionCountWaysToMakeChange(denoms, amount - denoms.get(start), start) +
+    solutionCountWaysToMakeChange(denoms, amount, start + 1);
 }
